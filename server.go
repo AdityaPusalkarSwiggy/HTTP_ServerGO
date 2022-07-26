@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"strings"
 )
 
 type User struct {
@@ -21,10 +23,11 @@ func HandlerDefault(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Welcome to the Server!\n")
 	switch r.Method {
 	case "GET":
-		u := User{
-			User:     "aditya",
-			Password: "aditya1234",
-		}
+		u := User{}
+		file, _ := os.ReadFile("data.txt")
+		data := strings.Split(string(file), "\n")
+		u.User = data[0]
+		u.Password = data[1]
 		fmt.Fprintf(w, "Incoming Get Request!\n")
 		json.NewEncoder(w).Encode(u)
 	case "POST":
@@ -33,6 +36,10 @@ func HandlerDefault(w http.ResponseWriter, r *http.Request) {
 		json.NewDecoder(r.Body).Decode(&u)
 		fmt.Fprintf(w, "User = %s\n", u.User)
 		fmt.Fprintf(w, "Password = %s\n", u.Password)
+
+		f, _ := os.Create("data.txt")
+		f.WriteString(u.User + "\n" + u.Password)
+		defer f.Close()
 	default:
 		fmt.Fprintf(w, "Sorry, only GET and POST methods are supported.")
 	}
