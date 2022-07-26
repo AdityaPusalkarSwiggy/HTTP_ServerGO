@@ -28,14 +28,9 @@ func HandlerDefault(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Incoming Get Request!\n")
 		json.NewEncoder(w).Encode(u)
 	case "POST":
-		r.ParseForm()
+		u := User{}
 		fmt.Fprintf(w, "Incoming Post Request!\n")
-		data := r.PostForm
-		fmt.Fprintf(w, "Data: %v\n", data)
-		u := User{
-			User:     data["user"][0],
-			Password: data["pass"][0],
-		}
+		json.NewDecoder(r.Body).Decode(&u)
 		fmt.Fprintf(w, "User = %s\n", u.User)
 		fmt.Fprintf(w, "Password = %s\n", u.Password)
 	default:
